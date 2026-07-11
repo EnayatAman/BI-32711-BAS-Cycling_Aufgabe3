@@ -1,0 +1,48 @@
+---
+Title: "BAS Cycling: Business Intelligence Fallstudie - Aufgabe 3"
+Author: Amanullah Enayat
+Date: "2026-07-11"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+### Schritt 1: Technisches Setup in RStudio
+Für unsere Analyse installieren wir das Paket readxl, um Excel-Dateien (.xls und .xlsx) in R einlesen zu können. Dieses Paket enthält die spezialisierte Funktion read_excel.
+
+### Wichtige Grundlagen zum Paket-Management:
+`library()`: Dies ist die Funktion, mit der wir ein bereits installiertes Paket (zum Beispiel `library(readxl)`) in unsere aktuelle R-Sitzung laden.
+### Verfügbarkeit: Erst nachdem der Befehl library(readxl) ausgeführt wurde, stehen uns die speziellen Funktionen des Pakets zur Verfügung.
+### Funktion vs. Variable: read_excel ist die eigentliche Anweisung, mit der Daten aus einer Excel-Tabelle einer Variablen zugewiesen werden (z. B. `meine_daten <- read_excel(...)`).
+### Base R: Im Gegensatz dazu ist `split()` eine Funktion, die bereits fest in die Programmiersprache R integriert ist und kein extra Laden eines Pakets erfordert (Conversation History).
+
+### Um sicherzustellen, dass die in unserem  Projekt verwendeten Pakete und deren exakte Versionen gespeichert und für die Zukunft festgehalten werden, installieren wir das Paket `renv` über die Console. Nach die Installation führen wir das Befehl ` renv::init() ` aus, um es in unserem Projekt integreiren.
+
+
+#
+
+read_excel("data/Transaktionen_Apriori.xlsx")
+
+#
+
+### Schritt 2: Datenimport und Vorbereitung (KDD)
+Der erste technische Schritt im KDD-Prozess (Knowledge Discovery in Databases) ist der Import der Daten. Mit der folgenden Funktion laden wir die speziell für diese Aufgabe bereitgestellten Transaktionsdaten.
+
+# Laden der Bibliothek
+
+```{r}
+library(readxl)
+```
+
+### Import der Transaktionsdatei
+Wir importieren nun die Datei Transaktionen_Apriori.xlsx in RStudio. Da unsere Datei in einem Unterordner namens „data“ liegt, nutzen wir einen relativen Pfad. Dabei schreiben wir den Ordnernamen, gefolgt von einem Vorwärts-Schrägstrich `(/)` und dem Dateinamen in Anführungszeichen.
+
+### Wichtiger Hinweis: Wenn wir die Funktion ohne Zuweisung ausführen, wird das Ergebnis nur in der Konsole angezeigt und nicht für spätere Schritte (wie die Gruppierung)gespeichert (Conversation History).
+
+# Import der Daten aus dem Unterordner "data"
+# Hinweis: In einem echten Projekt nutzen wir `"<-"`, um die Daten zu speichern.
+
+```{r}
+read_excel("data/Transaktionen_Apriori.xlsx")
+```
