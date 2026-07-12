@@ -11,13 +11,13 @@ output:
 ### Schritt 1: Technisches Setup in RStudio
 Für unsere Analyse installieren wir das Paket `readxl`. Dieses Paket ermöglicht das Einlesen von Excel-Dateien (.xls und .xlsx) in R.
 
-* Paket laden: Der erste technische Schritt im KDD-Prozess (Knowledge Discovery in Databases) ist der Import der Daten. Mit der folgenden Funktion laden wir die speziell für diese Aufgabe bereitgestellten Transaktionsdaten.Wir Intstallieren zunächst einmal `install.packages("readxl")` über das Konsol.
+* Paket : Der erste technische Schritt im KDD-Prozess (Knowledge Discovery in Databases) ist der Import der Daten. Mit der folgenden Funktion laden wir die speziell für diese Aufgabe bereitgestellten Transaktionsdaten.Wir Intstallieren zunächst einmal `install.packages("readxl")` über das Konsol.
 
 * Laden der Bibliothek: Die Funktion library() lädt ein bereits installiertes Paket in die aktuelle R-Sitzung. Erst danach stehen dessen Funktionen – beispielsweise `read_excel()` – zur Verfügung.
 
-Im Gegensatz dazu ist `split()` eine Funktion, die bereits fest in die Programmiersprache R integriert ist und kein extra Laden eines Pakets erfordert (Conversation History).
+* Im Gegensatz dazu ist `split()` eine Funktion, die bereits fest in die Programmiersprache R integriert ist und kein extra Laden eines Pakets erfordert (Conversation History).
 
-Um sicherzustellen, dass die in unserem  Projekt verwendeten Pakete und deren exakte Versionen gespeichert und für die Zukunft festgehalten werden, installieren wir das Paket `renv` über die Console. Nach die Installation führen wir das Befehl ` renv::init() ` aus, um es in unserem Projekt integreiren.
+* Um sicherzustellen, dass die in unserem  Projekt verwendeten Pakete und deren exakte Versionen gespeichert und für die Zukunft festgehalten werden, installieren wir das Paket `renv` über die Console. Nach die Installation führen wir das Befehl ` renv::init() ` aus, um es in unserem Projekt integreiren.
 
 
 ```{r setup, include=FALSE}
@@ -45,9 +45,7 @@ Da der Apriori-Algorithmus keine gewöhnliche Tabelle, sondern Transaktionen (Wa
 * 3.1: Gruppierung der Daten (Transformation)
 Die Ausgangsdaten enthalten für jedes gekaufte Produkt eine eigene Zeile. Für die Warenkorbanalyse müssen jedoch alle Produkte, die zu derselben BestellungNummer gehören, zu einem gemeinsamen Warenkorb zusammengefasst werden. Hierfür wird die integrierte R-Funktion `split()` verwendet. Sie gruppiert die Produktgruppen anhand der Bestellnummer und erstellt daraus eine Liste von Warenkörben.
 
-Erläuterung: produkte enthält alle Produktgruppen.
-bestellungen enthält die zugehörigen Bestellnummern.
-split() gruppiert sämtliche Produkte anhand ihrer Bestellnummer.
+Erläuterung: produkte enthält alle Produktgruppen.bestellungen enthält die zugehörigen Bestellnummern.`split()` gruppiert sämtliche Produkte anhand ihrer Bestellnummer.
 
 
 * Wir speichern die Bestandteile vorher in Variablen und dann gruppieren Produkte nach Bestellungen. Hier `trans_liste` ist eine Liste, aber noch kein Transaktionsobjekt.
@@ -55,6 +53,7 @@ split() gruppiert sämtliche Produkte anhand ihrer Bestellnummer.
 
 ```{r} 
 produkte <- meine_daten$ProduktGruppeName
+
 bestellungen <- meine_daten$BestellungNummer
 
 trans_liste <- split(produkte, bestellungen)
@@ -80,7 +79,7 @@ library(arulesViz)
 warenkorb_trans <- as(trans_liste, "transactions")
 ```
 
-* Kurze Überprüfung:
+* Kurze Überprüfung der Ergebnisse:
 
 ```{r}
 summary(warenkorb_trans)
@@ -117,18 +116,67 @@ plot(rules, method = "grouped")
 plot(rules, method = "matrix")
 
 ```
+### Graph Erläuterung: 
+
+* Scatterplot Graph: Das Scatterplot zeigt jede Assoziationsregel als einzelnen Punkt. Regeln mit hohem Support und hoher Konfidenz treten häufig auf und besitzen eine hohe Aussagekraft. Ein hoher Lift weist zusätzlich darauf hin, dass der Zusammenhang zwischen den Produkten deutlich stärker ist als zufällig zu erwarten wäre.
+
+* Netzwerkdarstellung Graph: Die Netzwerkdarstellung zeigt die Beziehungen zwischen den einzelnen Produktgruppen. Produkte mit vielen Verbindungen werden häufig gemeinsam gekauft und eignen sich besonders für Bundle-Angebote oder Cross-Selling-Maßnahmen.
+
+* Grouped Graph: zeigt Welche Produktgruppen gehören zusammen.
 
 
-* Regeln sortieren
+### Interpretation der Ergebnisse: Was bedeutet der Lift?
+
+Der Lift-Wert beschreibt die Stärke des Zusammenhangs zwischen zwei Produktgruppen. Ein Lift größer als 1 zeigt, dass zwei Produkte häufiger gemeinsam gekauft werden als zufällig zu erwarten wäre. Je höher der Lift, desto stärker ist der Zusammenhang zum Beispiel für die Erstellung von Black-Friday-Bundles.
 
 ```{r}
 rules_sorted <- sort(rules, by = "lift")
 ```
 
 
-* Top-10-Regeln anzeigen
+* Top-10-Regeln: Nachdem die Regeln im vorherigen Schritt nach ihrer Relevanz (dem Lift-Wert) sortiert wurden, lassen wir uns nun die zehn stärksten Ergebnisse anzeigen.
+
+`head(rules_sorted, 10)`: wählt die zehn ersten Regeln der nach dem Lift sortierten Regelmenge aus.
+`inspect()`: gibt die ausgewählten Regeln mit ihren wichtigsten Qualitätskennzahlen wie (support, confidence, coverage,lift und count) aus.
 
 ```{r}
-inspect(head(rules_sorted, 15))
+inspect(head(rules_sorted, 10))
 ```
+
+### Interpretation der einzelnen Regeln (Top 5)
+Da mehrere Assoziationsregeln denselben Zusammenhang in umgekehrter Richtung beschreiben Zum Besipiel `Regel 1: {BMX} → {Caps / Mützen} Regel 2: {Caps / Mützen} → {BMX}`, wurden für die Managementbewertung nur die Regeln betrachtet, bei denen ein Hauptprodukt auf ein passendes Zubehörprodukt verweist. .
+
+**Regel 1 :** BMX -> Caps / Mützen
+Support: 5,73 %
+Confidence: 71,69 %
+Lift: 6,70
+
+Interpretation: Kunden, die ein BMX kaufen, erwerben mit einer Wahrscheinlichkeit von rund 72 % zusätzlich Caps oder Mützen. Der Lift von 6,70 zeigt einen sehr starken Zusammenhang, der deutlich über dem Zufall liegt.
+
+**Regel 2 :** Trekkingrad -> Fahrradtasche
+Support: 9,11 %
+Confidence: 82,81 % Sehr hoch.
+
+Interpretation: Die Mehrheit der Trekkingrad-Käufer kauft zusätzlich eine Fahrradtasche.
+
+
+**Regel 3 :** E-Trekkingrad -> Fahrradtasche
+Support: 10,41 %
+Confidence 80,10 %
+
+Interpretation: Auch Käufer eines E-Trekkingrads erwerben sehr häufig eine Fahrradtasche.
+
+**Regel 4 :** Mountainbike -> Schutzblech
+Support 21,41 %  höchste Support der Regeln.
+Confidence 79,28 %
+
+Interpretation: Mountainbike-Kunden kaufen häufig Schutzbleche.
+
+**Regel 5 :** E-Mountainbike -> Schutzblech
+Support 15,09 %  höchste Support der Regeln.
+Confidence 40,49 %
+
+Interpretation: Auch E-Mountainbike-Kunden ergänzen ihren Kauf häufig um Schutzbleche.
+
+
 
