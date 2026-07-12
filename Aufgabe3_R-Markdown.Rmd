@@ -9,40 +9,126 @@ output:
 ---
 
 ### Schritt 1: Technisches Setup in RStudio
-Für unsere Analyse installieren wir das Paket readxl, um Excel-Dateien (.xls und .xlsx) in R einlesen zu können. Dieses Paket enthält die spezialisierte Funktion read_excel.
+Für unsere Analyse installieren wir das Paket `readxl`. Dieses Paket ermöglicht das Einlesen von Excel-Dateien (.xls und .xlsx) in R.
 
-### Wichtige Grundlagen zum Paket-Management:
-`library()`: Dies ist die Funktion, mit der wir ein bereits installiertes Paket (zum Beispiel `library(readxl)`) in unsere aktuelle R-Sitzung laden.
-### Verfügbarkeit: Erst nachdem der Befehl library(readxl) ausgeführt wurde, stehen uns die speziellen Funktionen des Pakets zur Verfügung.
-### Funktion vs. Variable: read_excel ist die eigentliche Anweisung, mit der Daten aus einer Excel-Tabelle einer Variablen zugewiesen werden (z. B. `meine_daten <- read_excel(...)`).
-### Base R: Im Gegensatz dazu ist `split()` eine Funktion, die bereits fest in die Programmiersprache R integriert ist und kein extra Laden eines Pakets erfordert (Conversation History).
+* Paket laden: Der erste technische Schritt im KDD-Prozess (Knowledge Discovery in Databases) ist der Import der Daten. Mit der folgenden Funktion laden wir die speziell für diese Aufgabe bereitgestellten Transaktionsdaten.Wir Intstallieren zunächst einmal `install.packages("readxl")` über das Konsol.
 
-### Um sicherzustellen, dass die in unserem  Projekt verwendeten Pakete und deren exakte Versionen gespeichert und für die Zukunft festgehalten werden, installieren wir das Paket `renv` über die Console. Nach die Installation führen wir das Befehl ` renv::init() ` aus, um es in unserem Projekt integreiren.
+* Laden der Bibliothek: Die Funktion library() lädt ein bereits installiertes Paket in die aktuelle R-Sitzung. Erst danach stehen dessen Funktionen – beispielsweise `read_excel()` – zur Verfügung.
+
+Im Gegensatz dazu ist `split()` eine Funktion, die bereits fest in die Programmiersprache R integriert ist und kein extra Laden eines Pakets erfordert (Conversation History).
+
+Um sicherzustellen, dass die in unserem  Projekt verwendeten Pakete und deren exakte Versionen gespeichert und für die Zukunft festgehalten werden, installieren wir das Paket `renv` über die Console. Nach die Installation führen wir das Befehl ` renv::init() ` aus, um es in unserem Projekt integreiren.
 
 
-#
-
-read_excel("data/Transaktionen_Apriori.xlsx")
-
-#
-
-### Schritt 2: Datenimport und Vorbereitung (KDD)
-Der erste technische Schritt im KDD-Prozess (Knowledge Discovery in Databases) ist der Import der Daten. Mit der folgenden Funktion laden wir die speziell für diese Aufgabe bereitgestellten Transaktionsdaten.
-
-# Laden der Bibliothek
-
-```{r}
+```{r setup, include=FALSE}
 library(readxl)
 ```
 
-### Import der Transaktionsdatei
-Wir importieren nun die Datei Transaktionen_Apriori.xlsx in RStudio. Da unsere Datei in einem Unterordner namens „data“ liegt, nutzen wir einen relativen Pfad. Dabei schreiben wir den Ordnernamen, gefolgt von einem Vorwärts-Schrägstrich `(/)` und dem Dateinamen in Anführungszeichen.
 
-### Wichtiger Hinweis: Wenn wir die Funktion ohne Zuweisung ausführen, wird das Ergebnis nur in der Konsole angezeigt und nicht für spätere Schritte (wie die Gruppierung)gespeichert (Conversation History).
+### Schritt 2: Datenimport
+Im ersten Schritt des KDD-Prozesses werden die bereitgestellten Transaktionsdaten importiert.
 
-# Import der Daten aus dem Unterordner "data"
-# Hinweis: In einem echten Projekt nutzen wir `"<-"`, um die Daten zu speichern.
+* Die Funktion `read_excel()` liest die Excel-Datei ein und durch Zuweisung `meine_daten <-` werden die Daten dauerhaft in der Variable `meine_daten` gespeichert und können in den nächsten Analyseschritten weiterverwendet werden.
+
+* Kommentare: Da unsere Datei in einem Unterordner namens „data“ liegt, nutzen wir einen relativen Pfad. Dabei schreiben wir den Ordnernamen, gefolgt von einem Vorwärts-Schrägstrich `(/)` und dem Dateinamen in Anführungszeichen.`read_excel("data/Transaktionen_Apriori.xlsx")`
+
+### Wichtiger Hinweis: Wenn wir die Funktion `read_excel("data/Transaktionen_Apriori.xlsx")`ohne Zuweisung ausführen, wird das Ergebnis nur in der Konsole angezeigt und nicht für spätere Schritte (wie die Gruppierung)gespeichert (Conversation History). Das andere Problenm ist das die Daten werden nicht dauerhaft gespeichert. Sobald die Ausgabe über den Bildschirm gelaufen ist, sind sie für R wieder "vergessen".Deswegen führen wir mit Zuweisung `"<-"`, damit die Daten in userem Environment-Fenster (oben rechts in RStudio) angeziegt zu bekommen.
 
 ```{r}
-read_excel("data/Transaktionen_Apriori.xlsx")
+meine_daten <- read_excel("data/Transaktionen_Apriori.xlsx")
 ```
+
+
+### Schritt 3: Vorbereitung der Daten (Transformation)
+Da der Apriori-Algorithmus keine gewöhnliche Tabelle, sondern Transaktionen (Warenkörbe) erwartet, müssen die Daten zunächst transformiert werden.
+
+* 3.1: Gruppierung der Daten (Transformation)
+Die Ausgangsdaten enthalten für jedes gekaufte Produkt eine eigene Zeile. Für die Warenkorbanalyse müssen jedoch alle Produkte, die zu derselben BestellungNummer gehören, zu einem gemeinsamen Warenkorb zusammengefasst werden. Hierfür wird die integrierte R-Funktion `split()` verwendet. Sie gruppiert die Produktgruppen anhand der Bestellnummer und erstellt daraus eine Liste von Warenkörben.
+
+Erläuterung: produkte enthält alle Produktgruppen.
+bestellungen enthält die zugehörigen Bestellnummern.
+split() gruppiert sämtliche Produkte anhand ihrer Bestellnummer.
+
+
+* Wir speichern die Bestandteile vorher in Variablen und dann gruppieren Produkte nach Bestellungen. Hier `trans_liste` ist eine Liste, aber noch kein Transaktionsobjekt.
+
+
+```{r} 
+produkte <- meine_daten$ProduktGruppeName
+bestellungen <- meine_daten$BestellungNummer
+
+trans_liste <- split(produkte, bestellungen)
+```
+
+
+* 3.2 : Umwandlung in ein Transaktionsobjekt:  Im nächsten Schritt wird die erzeugte Liste in ein Transaktionsobjekt umgewandelt. Hierzu wird das Paket `arules` verwendet. Dieses stellt die Daten in einem für den Apriori-Algorithmus geeigneten Format bereit, sodass die Transaktionen effizient verarbeitet und Assoziationsregeln ermittelt werden können. 
+* 3.2.2: wir Intstallieren einmal `install.packages("arules")` über das Konsol
+* 3.2.3: wir laden das Paket `library(arules)` in RStudio.
+
+* 3.2.4: wir installiern einmal `install.packages("arulesViz")` über das Konsol für die Visualisierung der Regeln.
+* 3.2.5: wir laden das Paket `library(arulesViz)` in RStudio.
+
+```{r}
+library(arules)
+library(arulesViz)
+
+```
+
+* 3.3: Transaktionsobjekt erzeugen: Das Paket `arules` erzeugt ein Transaktionsobjekt (transactions), das intern als spärliche Inzidenzmatrix (sparse incidence matrix) gespeichert wird. Dieses Format ermöglicht eine effiziente Verarbeitung durch den Apriori-Algorithmus.
+
+```{r}
+warenkorb_trans <- as(trans_liste, "transactions")
+```
+
+* Kurze Überprüfung:
+
+```{r}
+summary(warenkorb_trans)
+```
+
+
+### Schritt 4: Durchführung der Warenkorbanalyse
+Nachdem die Daten erfolgreich in das Transaktionsformat überführt wurden, wenden wir nun den Apriori-Algorithmus an. Das Ziel ist es, logische Abhängigkeiten zwischen Produktgruppen zu erkennen, die häufig gemeinsam gekauft werden (Bundle-Angebote).
+
+### 4.1: Begründung der gewählten Parameter
+ Für die Durchführung der Warenkorbanalyse wurden ein Mindestsupport von 5 % und eine Mindestkonfidenz von 30 % festgelegt.
+
+* Mindestsupport (0,05): Eine Produktkombination muss in mindestens 5 % aller Transaktionen vorkommen, damit sie als relevant betrachtet wird. Dadurch werden sehr seltene Kombinationen ausgeschlossen, die für die Analyse meist wenig Aussagekraft besitzen.
+
+* Mindestkonfidenz (0,30): Eine Regel wird nur berücksichtigt, wenn sie mit einer Wahrscheinlichkeit von mindestens 30 % eintritt. Das bedeutet beispielsweise: Wird Produkt A gekauft, soll in mindestens 30 % der Fälle auch Produkt B gemeinsam gekauft werden.
+
+Die Werte wurden gewählt, um einen sinnvollen Kompromiss zwischen der Anzahl der gefundenen Regeln und deren Aussagekraft zu erreichen. Ein Mindestsupport von 5 % stellt sicher, dass nur häufig auftretende Produktkombinationen berücksichtigt werden. Die Mindestkonfidenz von 30 % filtert Regeln heraus, deren Vorhersagekraft zu gering ist. Dadurch bleiben ausreichend viele, aber dennoch aussagekräftige Assoziationsregeln für die weitere Analyse erhalten.
+
+```{r}
+rules <- apriori(
+  warenkorb_trans,
+  parameter = list(
+    supp = 0.05,
+    conf = 0.30,
+    target = "rules"
+  )
+)
+```
+
+```{r}
+plot(rules, method = "scatterplot")
+plot(rules, method = "graph")
+plot(rules, method = "grouped")
+plot(rules, method = "matrix")
+
+```
+
+
+* Regeln sortieren
+
+```{r}
+rules_sorted <- sort(rules, by = "lift")
+```
+
+
+* Top-10-Regeln anzeigen
+
+```{r}
+inspect(head(rules_sorted, 15))
+```
+

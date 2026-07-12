@@ -41,3 +41,5 @@ meine_daten <- read_excel("data/Transaktionen_Apriori.xlsx")
 
 
 
+
+
