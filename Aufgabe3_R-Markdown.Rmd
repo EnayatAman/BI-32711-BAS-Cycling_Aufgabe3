@@ -1,12 +1,15 @@
 ---
-Title: "BAS Cycling: Business Intelligence Fallstudie - Aufgabe 3"
-Author: Amanullah Enayat
-Date: "2026-07-11"
+title: "BAS Cycling: Business Intelligence Fallstudie - Aufgabe 3"
+subtitle: "Erstellt von: Amanullah Enayat"
+date: "2026-07-11"
 output:
   pdf_document: default
   html_document:
     df_print: paged
 ---
+
+### Ziel der Analyse
+Ziel dieser Analyse ist es, mithilfe einer Warenkorbanalyse (Market Basket Analysis) häufig gemeinsam gekaufte Produktgruppen der BAS Cycling zu identifizieren. Auf Grundlage der ermittelten Assoziationsregeln sollen geeignete Black-Friday-Angebote entwickelt sowie Empfehlungen für Cross-Selling und personalisierte Marketingmaßnahmen abgeleitet werden. Als Data-Mining-Verfahren wird hierzu der Apriori-Algorithmus eingesetzt.
 
 ### Schritt 1: Technisches Setup in RStudio
 Für unsere Analyse installieren wir das Paket `readxl`. Dieses Paket ermöglicht das Einlesen von Excel-Dateien (.xls und .xlsx) in R.
@@ -118,11 +121,11 @@ plot(rules, method = "matrix")
 ```
 ### Graph Erläuterung: 
 
-* Scatterplot Graph: Das Scatterplot zeigt jede Assoziationsregel als einzelnen Punkt. Regeln mit hohem Support und hoher Konfidenz treten häufig auf und besitzen eine hohe Aussagekraft. Ein hoher Lift weist zusätzlich darauf hin, dass der Zusammenhang zwischen den Produkten deutlich stärker ist als zufällig zu erwarten wäre.
+* Scatterplot Graph: Das Scatterplot zeigt jede Assoziationsregel als einzelnen Punkt. Regeln mit hohem Support und hoher Konfidenz treten häufig auf und besitzen eine hohe Aussagekraft. Ein hoher Lift weist zusätzlich darauf hin, dass der Zusammenhang zwischen den Produkten deutlich stärker ist als zufällig zu erwarten wäre.Der Scatterplot zeigt, dass mehrere Regeln sowohl einen hohen Lift als auch eine hohe Konfidenz besitzen. Besonders die Regeln BMX → Caps/Mützen sowie Trekkingrad → Fahrradtasche weisen starke Zusammenhänge auf und eignen sich daher für Bundle-Angebote.
 
-* Netzwerkdarstellung Graph: Die Netzwerkdarstellung zeigt die Beziehungen zwischen den einzelnen Produktgruppen. Produkte mit vielen Verbindungen werden häufig gemeinsam gekauft und eignen sich besonders für Bundle-Angebote oder Cross-Selling-Maßnahmen.
+* Netzwerkdarstellung Graph: Die Netzwerkdarstellung zeigt die Beziehungen zwischen den einzelnen Produktgruppen. Produkte mit vielen Verbindungen werden häufig gemeinsam gekauft und eignen sich besonders für Bundle-Angebote oder Cross-Selling-Maßnahmen.Die Netzwerkdarstellung verdeutlicht die engen Beziehungen zwischen Mountainbike und Schutzblech sowie Trekkingrad und Fahrradtasche. Diese Produktgruppen sollten im Online-Shop gemeinsam empfohlen werden.
 
-* Grouped Graph: zeigt Welche Produktgruppen gehören zusammen.
+* Grouped Graph: Der Grouped Graph zeigt Welche Produktgruppen gehören zusammen.Die Matrix zeigt, dass sich mehrere Produktgruppen zu wiederkehrenden Kaufmustern zusammenfassen lassen.
 
 
 ### Interpretation der Ergebnisse: Was bedeutet der Lift?
@@ -167,16 +170,49 @@ Confidence 80,10 %
 Interpretation: Auch Käufer eines E-Trekkingrads erwerben sehr häufig eine Fahrradtasche.
 
 **Regel 4 :** Mountainbike -> Schutzblech
-Support 21,41 %  höchste Support der Regeln.
+Support 21,41 %  (höchste Support der Regeln)
 Confidence 79,28 %
 
 Interpretation: Mountainbike-Kunden kaufen häufig Schutzbleche.
 
 **Regel 5 :** E-Mountainbike -> Schutzblech
-Support 15,09 %  höchste Support der Regeln.
-Confidence 40,49 %
+Support 15,09 %  
+Confidence 79,43 %
 
 Interpretation: Auch E-Mountainbike-Kunden ergänzen ihren Kauf häufig um Schutzbleche.
+
+**Fazit**: Die Warenkorbanalyse zeigt, dass sich mit dem Apriori-Algorithmus mehrere starke Zusammenhänge zwischen den Produktgruppen identifizieren lassen. Besonders Mountainbike–Schutzblech, Trekkingrad–Fahrradtasche und BMX–Caps/Mützen weisen hohe Lift- und Konfidenzwerte auf. Diese Erkenntnisse können genutzt werden, um attraktive Black-Friday-Angebote zu entwickeln, Cross-Selling-Potenziale auszuschöpfen und personalisierte Marketingmaßnahmen umzusetzen.Znum Beispiel:
+
+* Personalisierte E-Mail-Nachfassaktion nach Bike-Kauf mit Rabatt auf das passende Zubehör
+* Segmentierung der Kundendatenbank nach gekauften Hauptprodukten für zielgerichtete Newsletter-Ausspielung
+
+
+### Schritt 5: Managementempfehlungen
+
+**Black-Friday-Angebote**
+Mountainbike + Schutzblech
+Trekkingrad + Fahrradtasche
+BMX + Caps/Mützen
+E-Trekkingrad + Fahrradtasche
+
+
+**Cross-Selling**
+
+Beim Kauf eines Mountainbikes -> Schutzblech automatisch empfehlen
+Beim Kauf eines Trekkingrads -> Fahrradtasche anzeigen
+Beim Kauf eines BMX -> Caps/Mützen als Empfehlung einblenden
+Beim Kauf eines E-Trekkingrads -> Fahrradtasche anzeigen
+
+
+**Strategische Wahl der Analyseebene (Produktgruppen vs. Einzelprodukte)**:
+Aufgrund des hochgradig diversifizierten Produktportfolios der BAS Cycling GmbH wurde die Analyse bewusst auf der Ebene der Produktgruppen `(ProduktGruppeName)` durchgeführt. Diese Entscheidung basiert auf folgenden methodischen und betriebswirtschaftlichen Erwägungen:
+
+**Sicherstellung statistischer Stabilität (Support-Schwelle):** Bei einem Sortiment mit zahlreichen Varianten in Modellen, Farben und Größen wäre die Auftretenshäufigkeit jeder einzelnen spezifischen Produktkombination extrem gering. Die gewählte Support-Schwelle von 5 %  würde auf Einzelproduktebene kaum erreicht werden, was zu statistisch instabilen Regeln führen würde, die nicht auf das allgemeine Kundenverhalten übertragbar sind.
+
+**Vermeidung der kombinatorischen Explosion:** Bei über 10.000 Transaktionen und tausenden Einzelartikeln würde die Anzahl der möglichen Item-Kombinationen mathematisch „explodieren“, was den Rechenaufwand massiv erhöht und die Interpretation der Ergebnisse erschwert. Die Aggregation auf `38` Produktgruppen reduziert dieses „Rauschen“ und macht signifikante Muster überhaupt erst sichtbar.
+
+
+
 
 
 
